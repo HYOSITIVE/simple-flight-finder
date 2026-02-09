@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Finder</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+    h1 { font-size: 1.8rem; color: #1a202c; margin-bottom: 24px; }
+    .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.1); margin-bottom: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: .85rem; font-weight: 600; color: #4a5568; text-transform: uppercase; letter-spacing: .5px; }
+    input, select { padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: .95rem; color: #2d3748; transition: border-color .2s; }
+    input:focus, select:focus { outline: none; border-color: #4299e1; }
+    .btn { padding: 12px 28px; background: #4299e1; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .btn:hover { background: #3182ce; }
+    .btn:disabled { background: #a0aec0; cursor: default; }
+    .error { background: #fff5f5; border: 1px solid #fed7d7; color: #c53030; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 10px 14px; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: #718096; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 12px 14px; border-bottom: 1px solid #f7fafc; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover td { background: #ebf8ff; }
+    tr.selected td { background: #bee3f8; }
+    .price { font-weight: 700; color: #2f855a; }
+    .flight-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+    .flight-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .flight-price { font-size: 1.3rem; font-weight: 700; color: #2f855a; }
+    .flight-meta { font-size: .85rem; color: #718096; }
+    .leg { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid #f7fafc; font-size: .9rem; }
+    .leg-airports { font-weight: 600; color: #2d3748; }
+    .leg-time { color: #4a5568; }
+    .leg-airline { color: #718096; font-size: .82rem; }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid #bee3f8; border-top-color: #4299e1; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .section-title { font-size: 1.1rem; font-weight: 700; color: #2d3748; margin-bottom: 16px; }
+    .empty { text-align: center; padding: 32px; color: #a0aec0; }
+    .dest-container { display: flex; flex-direction: column; gap: 8px; }
+    .dest-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; }
+    .dest-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px 4px 10px; background: #4299e1; color: white; border-radius: 16px; font-size: .85rem; }
+    .dest-chip-remove { cursor: pointer; font-weight: 700; font-size: 1rem; line-height: 1; transition: opacity .2s; }
+    .dest-chip-remove:hover { opacity: .7; }
+    .dest-input-wrapper { position: relative; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✈ Flight Finder</h1>
+
+    <div class="card">
+      <form id="searchForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Origin</label>
+            <input type="text" id="origin" placeholder="e.g. JFK" maxlength="3" list="airports" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label>Destination(s)</label>
+            <div class="dest-container">
+              <div class="dest-chips" id="destChips"></div>
+              <div class="dest-input-wrapper">
+                <input type="text" id="destination" placeholder="Loading airports..." list="airports" autocomplete="off">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>From Date</label>
+            <input type="date" id="fromDate" required>
+          </div>
+          <div class="form-group">
+            <label>To Date</label>
+            <input type="date" id="toDate" required>
+          </div>
+          <div class="form-group">
+            <label>Cabin Class</label>
+            <select id="seatType">
+              <option value="ECONOMY">Economy</option>
+              <option value="PREMIUM_ECONOMY">Premium Economy</option>
+              <option value="BUSINESS">Business</option>
+              <option value="FIRST">First</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Trip Type</label>
+            <select id="tripType">
+              <option value="ONE_WAY">One Way</option>
+              <option value="ROUND_TRIP">Round Trip</option>
+            </select>
+          </div>
+          <div class="form-group" id="durationGroup" style="display:none">
+            <label>Duration (nights)</label>
+            <input type="number" id="duration" min="1" max="30" value="7">
+          </div>
+          <div class="form-group">
+            <label>Adults</label>
+            <input type="number" id="adults" min="1" max="9" value="1">
+          </div>
+        </div>
+        <br>
+        <button type="submit" class="btn" id="searchBtn">Search Cheapest Dates</button>
+      </form>
+    </div>
+
+    <div id="errorBox" style="display:none" class="error"></div>
+
+    <div id="datesSection" style="display:none" class="card">
+      <div class="section-title" id="datesSectionTitle">Cheapest Dates</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Return Date</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="datesBody"></tbody>
+      </table>
+    </div>
+
+    <div id="flightsSection" style="display:none" class="card">
+      <div class="section-title" id="flightsSectionTitle">Flight Options</div>
+      <div id="flightsList"></div>
+    </div>
+  </div>
+
+  <datalist id="airports"></datalist>
+
+  <script>
+    const form = document.getElementById('searchForm');
+    const tripTypeEl = document.getElementById('tripType');
+    const durationGroup = document.getElementById('durationGroup');
+    const searchBtn = document.getElementById('searchBtn');
+    const errorBox = document.getElementById('errorBox');
+    const datesSection = document.getElementById('datesSection');
+    const datesBody = document.getElementById('datesBody');
+    const flightsSection = document.getElementById('flightsSection');
+    const flightsList = document.getElementById('flightsList');
+    const airportsDatalist = document.getElementById('airports');
+    const originInput = document.getElementById('origin');
+    const destInput = document.getElementById('destination');
+    const destChipsContainer = document.getElementById('destChips');
+
+    // Track selected destinations
+    let selectedDestinations = [];
+
+    // Add destination chip
+    function addDestination(code) {
+      code = code.trim().toUpperCase();
+      if (!code) return;
+
+      // Check if already added
+      if (selectedDestinations.includes(code)) {
+        destInput.value = '';
+        return;
+      }
+
+      // Validate it's a valid airport code
+      const options = Array.from(airportsDatalist.options);
+      const validAirport = options.find(opt => opt.value === code);
+      if (!validAirport && airportsDatalist.options.length > 0) {
+        showError(`Invalid airport code: ${code}`);
+        return;
+      }
+
+      selectedDestinations.push(code);
+      renderDestinations();
+      destInput.value = '';
+      hideError();
+    }
+
+    // Remove destination chip
+    function removeDestination(code) {
+      selectedDestinations = selectedDestinations.filter(d => d !== code);
+      renderDestinations();
+    }
+
+    // Render destination chips
+    function renderDestinations() {
+      destChipsContainer.innerHTML = '';
+      selectedDestinations.forEach(code => {
+        const chip = document.createElement('div');
+        chip.className = 'dest-chip';
+        chip.innerHTML = `
+          <span>${code}</span>
+          <span class="dest-chip-remove" data-code="${code}">&times;</span>
+        `;
+        chip.querySelector('.dest-chip-remove').addEventListener('click', () => removeDestination(code));
+        destChipsContainer.appendChild(chip);
+      });
+    }
+
+    // Handle destination input
+    destInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addDestination(destInput.value);
+      } else if (e.key === ',' || e.key === ' ') {
+        e.preventDefault();
+        addDestination(destInput.value);
+      } else if (e.key === 'Backspace' && !destInput.value && selectedDestinations.length > 0) {
+        // Remove last chip on backspace if input is empty
+        removeDestination(selectedDestinations[selectedDestinations.length - 1]);
+      }
+    });
+
+    // Handle destination input change (for datalist selection)
+    destInput.addEventListener('change', () => {
+      if (destInput.value) {
+        addDestination(destInput.value);
+      }
+    });
+
+    // Load airports on page load
+    async function loadAirports() {
+      // Show loading state
+      originInput.placeholder = 'Loading airports...';
+      destInput.placeholder = 'Loading airports...';
+
+      try {
+        const resp = await fetch('/api/airports');
+        const airports = await resp.json();
+
+        airports.forEach(airport => {
+          const option = document.createElement('option');
+          option.value = airport.code;
+          option.textContent = airport.name;
+          airportsDatalist.appendChild(option);
+        });
+
+        console.log(`Loaded ${airports.length} airports`);
+
+        // Reset placeholders
+        originInput.placeholder = 'e.g. JFK, YLW, LAX';
+        destInput.placeholder = 'Type to search and select destinations...';
+      } catch (err) {
+        console.error('Failed to load airports:', err);
+        // Graceful degradation - form still works without autocomplete
+        originInput.placeholder = 'e.g. JFK (3-letter code)';
+        destInput.placeholder = 'Type airport codes (e.g. SFO, LAX)';
+      }
+    }
+
+    // Load airports asynchronously
+    loadAirports();
+
+    // Set default dates (today + 14 days, today + 28 days)
+    const today = new Date();
+    const fromDefault = new Date(today);
+    fromDefault.setDate(today.getDate() + 14);
+    const toDefault = new Date(today);
+    toDefault.setDate(today.getDate() + 28);
+    document.getElementById('fromDate').value = fromDefault.toISOString().slice(0, 10);
+    document.getElementById('toDate').value = toDefault.toISOString().slice(0, 10);
+
+    tripTypeEl.addEventListener('change', () => {
+      durationGroup.style.display = tripTypeEl.value === 'ROUND_TRIP' ? 'flex' : 'none';
+    });
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = 'block';
+    }
+
+    function hideError() {
+      errorBox.style.display = 'none';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatDateTime(isoStr) {
+      const d = new Date(isoStr);
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDuration(mins) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${h}h ${m}m`;
+    }
+
+    let selectedRow = null;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+      datesSection.style.display = 'none';
+      flightsSection.style.display = 'none';
+      datesBody.innerHTML = '';
+      flightsList.innerHTML = '';
+      selectedRow = null;
+
+      const origin = document.getElementById('origin').value.trim().toUpperCase();
+
+      // Check if at least one destination is selected
+      if (selectedDestinations.length === 0) {
+        showError('Please select at least one destination');
+        return;
+      }
+
+      const destinations = selectedDestinations.join(',');
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      const seatType = document.getElementById('seatType').value;
+      const tripType = tripTypeEl.value;
+      const adults = parseInt(document.getElementById('adults').value) || 1;
+      const duration = parseInt(document.getElementById('duration').value) || 7;
+
+      const payload = { origin, destinations, from_date: fromDate, to_date: toDate, seat_type: seatType, trip_type: tripType, adults };
+      if (tripType === 'ROUND_TRIP') payload.duration = duration;
+
+      searchBtn.disabled = true;
+      searchBtn.innerHTML = '<span class="spinner"></span>Searching...';
+
+      try {
+        const resp = await fetch('/api/search/dates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          showError(data.detail || 'Search failed');
+          return;
+        }
+
+        if (!data.length) {
+          showError('No results found for this route and date range.');
+          return;
+        }
+
+        // Group results by destination
+        const byDestination = {};
+        data.forEach(row => {
+          if (!byDestination[row.destination]) {
+            byDestination[row.destination] = [];
+          }
+          byDestination[row.destination].push(row);
+        });
+
+        document.getElementById('datesSectionTitle').textContent =
+          `Cheapest Dates from ${origin}`;
+        datesSection.style.display = 'block';
+
+        // Create a table for each destination
+        datesBody.innerHTML = '';
+        Object.keys(byDestination).sort().forEach(destination => {
+          const destRows = byDestination[destination];
+
+          // Add destination header row
+          const headerTr = document.createElement('tr');
+          headerTr.innerHTML = `
+            <td colspan="3" style="background: #f7fafc; font-weight: 700; color: #2d3748; padding: 12px 14px; border-top: 2px solid #e2e8f0;">
+              ${origin} → ${destination}
+            </td>
+          `;
+          datesBody.appendChild(headerTr);
+
+          // Add data rows for this destination
+          destRows.sort((a, b) => a.price - b.price).forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'clickable';
+            tr.innerHTML = `
+              <td>${formatDate(row.date)}</td>
+              <td>${formatDate(row.return_date)}</td>
+              <td class="price">$${row.price.toFixed(2)}</td>
+            `;
+            tr.addEventListener('click', () => loadFlights(row, tr, origin, destination, tripType, adults, seatType));
+            datesBody.appendChild(tr);
+          });
+        });
+      } catch (err) {
+        showError('Network error: ' + err.message);
+      } finally {
+        searchBtn.disabled = false;
+        searchBtn.textContent = 'Search Cheapest Dates';
+      }
+    });
+
+    async function loadFlights(row, tr, origin, destination, tripType, adults, seatType) {
+      if (selectedRow) selectedRow.classList.remove('selected');
+      selectedRow = tr;
+      tr.classList.add('selected');
+
+      flightsSection.style.display = 'block';
+      document.getElementById('flightsSectionTitle').textContent =
+        `Flight Options: ${origin} → ${destination} on ${formatDate(row.date)}`;
+      flightsList.innerHTML = '<p><span class="spinner"></span>Loading flights...</p>';
+
+      const payload = {
+        origin, destination,
+        date: row.date,
+        adults,
+        seat_type: seatType,
+        trip_type: tripType,
+      };
+      if (row.return_date) payload.return_date = row.return_date;
+
+      try {
+        const resp = await fetch('/api/search/flights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          flightsList.innerHTML = `<div class="error">${data.detail || 'Failed to load flights'}</div>`;
+          return;
+        }
+
+        if (!data.length) {
+          flightsList.innerHTML = '<p class="empty">No flights found for this date.</p>';
+          return;
+        }
+
+        flightsList.innerHTML = '';
+        data.forEach(flight => {
+          const div = document.createElement('div');
+          div.className = 'flight-card';
+          const legsHtml = flight.legs.map(leg => `
+            <div class="leg">
+              <span class="leg-airports">${leg.departure_airport} → ${leg.arrival_airport}</span>
+              <span class="leg-time">${formatDateTime(leg.departure_time)} → ${formatDateTime(leg.arrival_time)}</span>
+              <span class="leg-airline">${leg.airline} ${leg.flight_number}</span>
+            </div>
+          `).join('');
+          div.innerHTML = `
+            <div class="flight-card-header">
+              <span class="flight-price">$${flight.price.toFixed(2)}</span>
+              <span class="flight-meta">${formatDuration(flight.duration_minutes)} · ${flight.stops === 0 ? 'Nonstop' : flight.stops + ' stop' + (flight.stops > 1 ? 's' : '')}</span>
+            </div>
+            ${legsHtml}
+          `;
+          flightsList.appendChild(div);
+        });
+      } catch (err) {
+        flightsList.innerHTML = `<div class="error">Network error: ${err.message}</div>`;
+      }
+    }
+  </script>
+</body>
+</html>
