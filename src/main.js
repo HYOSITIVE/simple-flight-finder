@@ -171,6 +171,7 @@ const originSelect = new TomSelect('#origin', {
   labelField: 'label',
   searchField: ['code', 'name'],
   maxItems: 1,
+  maxOptions: null,
   create: false,
   placeholder: 'Choose an origin airport',
   sortField: [
@@ -196,7 +197,7 @@ const destinationSelect = new TomSelect('#destinations', {
   },
   create: false,
   persist: false,
-  maxOptions: 200,
+  maxOptions: null,
   placeholder: 'Add one or more destinations',
   sortField: [
     { field: 'code', direction: 'asc' },
