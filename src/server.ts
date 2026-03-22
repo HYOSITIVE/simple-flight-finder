@@ -10,7 +10,7 @@ import { dateSearchSchema, flightSearchSchema } from "./validation.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const publicDir = path.resolve(__dirname, "public");
+const publicDir = path.resolve(__dirname, "../public");
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
