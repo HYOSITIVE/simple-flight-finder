@@ -11,6 +11,7 @@ app.include_router(flights.router, prefix="/api/search")
 app.include_router(airports.router, prefix="/api")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/assets", StaticFiles(directory="app/static/assets"), name="assets")
 
 
 @app.get("/")
