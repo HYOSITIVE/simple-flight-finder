@@ -169,7 +169,7 @@ function forceTomSelectInputTheme(instance) {
 const originSelect = new TomSelect('#origin', {
   valueField: 'code',
   labelField: 'label',
-  searchField: ['code', 'name', 'city'],
+  searchField: ['code', 'name', 'city', 'full_name'],
   maxItems: 1,
   maxOptions: null,
   create: false,
@@ -179,7 +179,7 @@ const originSelect = new TomSelect('#origin', {
   ],
   render: {
     option(item, escape) {
-      return `<div class="airport-option"><strong>${escape(item.code)}</strong><span>${escape(item.name)}</span></div>`;
+      return `<div class="airport-option"><strong>${escape(item.code)}</strong><span>${escape(item.full_name || item.name)}</span></div>`;
     },
     item(item, escape) {
       return `<div>${escape(item.code)}</div>`;
@@ -191,7 +191,7 @@ forceTomSelectInputTheme(originSelect);
 const destinationSelect = new TomSelect('#destinations', {
   valueField: 'code',
   labelField: 'label',
-  searchField: ['code', 'name', 'city'],
+  searchField: ['code', 'name', 'city', 'full_name'],
   plugins: {
     remove_button: { title: 'Remove this destination' },
   },
@@ -204,7 +204,7 @@ const destinationSelect = new TomSelect('#destinations', {
   ],
   render: {
     option(item, escape) {
-      return `<div class="airport-option"><strong>${escape(item.code)}</strong><span>${escape(item.name)}</span></div>`;
+      return `<div class="airport-option"><strong>${escape(item.code)}</strong><span>${escape(item.full_name || item.name)}</span></div>`;
     },
     item(item, escape) {
       return `<div>${escape(item.code)}</div>`;
@@ -406,6 +406,7 @@ async function loadAirports() {
       code: airport.code,
       name: airport.name,
       city: airport.city,
+      full_name: airport.full_name,
       label: `${airport.code} · ${airport.name}`,
     }));
 

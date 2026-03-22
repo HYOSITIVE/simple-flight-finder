@@ -20,5 +20,6 @@ def get_airports(response: Response):
             "code": airport.name,
             "name": airport.value,
             "city": extra.get("city", ""),
+            "full_name": extra.get("name", ""),
         })
     return sorted(airports, key=lambda x: x["code"])
