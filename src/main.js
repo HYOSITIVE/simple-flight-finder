@@ -146,9 +146,9 @@ function forceTomSelectInputTheme(instance) {
   const applyInputTheme = () => {
     if (!instance.control_input) return;
 
-    instance.control_input.style.setProperty('color', '#111111', 'important');
-    instance.control_input.style.setProperty('-webkit-text-fill-color', '#111111', 'important');
-    instance.control_input.style.setProperty('caret-color', '#111111', 'important');
+    instance.control_input.style.setProperty('color', '#f9fbff', 'important');
+    instance.control_input.style.setProperty('-webkit-text-fill-color', '#f9fbff', 'important');
+    instance.control_input.style.setProperty('caret-color', '#f9fbff', 'important');
     instance.control_input.style.setProperty('opacity', '1', 'important');
   };
 

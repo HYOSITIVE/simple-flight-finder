@@ -145,9 +145,15 @@ select {
   min-height: 54px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.06) !important;
   color: #f9fbff;
   box-shadow: none;
+}
+
+.ts-wrapper .ts-control > input,
+.ts-wrapper .ts-control > input:focus {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .field input {
@@ -162,6 +168,13 @@ select {
 .ts-wrapper.focus .ts-control {
   border-color: rgba(95, 226, 210, 0.68);
   box-shadow: 0 0 0 4px rgba(95, 226, 210, 0.12);
+}
+
+.ts-wrapper .ts-control > input:-webkit-autofill,
+.ts-wrapper .ts-control > input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(7, 17, 31, 0.9) inset !important;
+  -webkit-text-fill-color: #f9fbff !important;
+  caret-color: #f9fbff;
 }
 
 .ts-control,
@@ -216,7 +229,7 @@ select {
 }
 
 .ts-wrapper.single .ts-control > .item {
-  color: #111111;
+  color: #f9fbff;
 }
 
 .panel-actions {
