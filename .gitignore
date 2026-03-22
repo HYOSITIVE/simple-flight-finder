@@ -11,3 +11,5 @@ wheels/
 
 # Frontend dependencies
 node_modules/
+
+/app/static
