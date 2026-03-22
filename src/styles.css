@@ -169,6 +169,25 @@ select {
   color: #f9fbff;
 }
 
+.ts-wrapper.single .ts-control > input,
+.ts-wrapper.single .ts-control > input::placeholder,
+.ts-wrapper.multi .ts-control > input,
+.ts-wrapper.multi .ts-control > input::placeholder {
+  color: #f9fbff !important;
+  -webkit-text-fill-color: #f9fbff;
+}
+
+.ts-wrapper.single .ts-control > input,
+.ts-wrapper.multi .ts-control > input {
+  caret-color: #f9fbff;
+  opacity: 1 !important;
+}
+
+.ts-wrapper.single .ts-control > input::placeholder,
+.ts-wrapper.multi .ts-control > input::placeholder {
+  opacity: 0.72;
+}
+
 .ts-dropdown {
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);

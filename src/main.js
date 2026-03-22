@@ -142,6 +142,30 @@ const tripTypeSelect = new TomSelect('#tripType', {
   controlInput: null,
 });
 
+function forceTomSelectInputTheme(instance) {
+  const applyInputTheme = () => {
+    if (!instance.control_input) return;
+
+    instance.control_input.style.setProperty('color', '#111111', 'important');
+    instance.control_input.style.setProperty('-webkit-text-fill-color', '#111111', 'important');
+    instance.control_input.style.setProperty('caret-color', '#111111', 'important');
+    instance.control_input.style.setProperty('opacity', '1', 'important');
+  };
+
+  applyInputTheme();
+
+  instance.on('initialize', applyInputTheme);
+  instance.on('dropdown_open', applyInputTheme);
+  instance.on('type', applyInputTheme);
+  instance.on('focus', applyInputTheme);
+
+  const observer = new MutationObserver(applyInputTheme);
+  observer.observe(instance.control_input, {
+    attributes: true,
+    attributeFilter: ['style'],
+  });
+}
+
 const originSelect = new TomSelect('#origin', {
   valueField: 'code',
   labelField: 'label',
@@ -161,6 +185,7 @@ const originSelect = new TomSelect('#origin', {
     },
   },
 });
+forceTomSelectInputTheme(originSelect);
 
 const destinationSelect = new TomSelect('#destinations', {
   valueField: 'code',
@@ -185,6 +210,7 @@ const destinationSelect = new TomSelect('#destinations', {
     },
   },
 });
+forceTomSelectInputTheme(destinationSelect);
 
 const today = new Date();
 const fromDefault = new Date(today);
