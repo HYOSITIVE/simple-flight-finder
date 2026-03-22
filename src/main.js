@@ -202,6 +202,10 @@ const destinationSelect = new TomSelect('#destinations', {
   sortField: [
     { field: 'code', direction: 'asc' },
   ],
+  onItemAdd() {
+    this.setTextboxValue('');
+    this.refreshOptions();
+  },
   render: {
     option(item, escape) {
       return `<div class="airport-option"><strong>${escape(item.code)}</strong><span>${escape(item.full_name || item.name)}</span></div>`;
