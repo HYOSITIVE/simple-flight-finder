@@ -232,6 +232,14 @@ select {
   color: #f9fbff;
 }
 
+.ts-wrapper .ts-control {
+  align-items: center;
+}
+
+.ts-wrapper .ts-control > * {
+  vertical-align: middle;
+}
+
 .panel-actions {
   display: flex;
   align-items: center;
