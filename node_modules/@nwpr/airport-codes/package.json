@@ -1,0 +1,50 @@
+{
+  "name": "@nwpr/airport-codes",
+  "version": "3.0.3",
+  "description": "Airport codes (IATA) and information pulled from OpenFlights.org.",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.esm.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "update": "node ./dist/update.js",
+    "build": "rollup -c",
+    "postinstall": "node ./dist/update.js || true",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nwpr/airport-codes.git"
+  },
+  "keywords": [
+    "airport",
+    "codes",
+    "iata",
+    "openflights"
+  ],
+  "author": "Nikolaus Walther <npmjs@walther.eu.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nwpr/airport-codes/issues"
+  },
+  "homepage": "https://github.com/nwpr/airport-codes",
+  "dependencies": {
+    "https": "^1.0.0",
+    "papaparse": "^5.4.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/plugin-transform-runtime": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-typescript": "^7.23.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@types/node": "^20.8.3",
+    "@types/papaparse": "^5.3.14",
+    "eslint": "^8.51.0",
+    "rollup": "^4.9.6",
+    "rollup-plugin-ts": "^3.4.5",
+    "typescript": "^5.2.2"
+  }
+}

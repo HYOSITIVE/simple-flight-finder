@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Finder</title>
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #f3efe5 0%, #d9e7f5 45%, #f7fafc 100%);
+      --ink: #172033;
+      --muted: #627189;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-strong: #ffffff;
+      --line: rgba(23, 32, 51, 0.1);
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --accent-soft: #d6f5f1;
+      --danger-bg: #fff1f2;
+      --danger-border: #fecdd3;
+      --danger-text: #be123c;
+      --success: #166534;
+      --shadow: 0 24px 70px rgba(23, 32, 51, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 28%),
+        var(--bg);
+    }
+    .container { max-width: 1080px; margin: 0 auto; padding: 32px 16px 48px; }
+    .hero { margin-bottom: 24px; }
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(23, 32, 51, 0.08);
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    h1 { font-size: clamp(2.3rem, 4vw, 4.2rem); line-height: 0.95; margin-bottom: 10px; }
+    .hero p { max-width: 760px; color: var(--muted); font-size: 1.02rem; line-height: 1.6; }
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      font: inherit;
+      color: var(--ink);
+    }
+    input:focus, select:focus {
+      outline: 2px solid rgba(15, 118, 110, 0.18);
+      border-color: var(--accent);
+    }
+    .btn {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 26px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent) 0%, #0f4c81 100%);
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 14px 34px rgba(15, 118, 110, 0.22);
+    }
+    .btn:hover { background: linear-gradient(135deg, var(--accent-strong) 0%, #0d3c65 100%); }
+    .btn:disabled { cursor: default; opacity: 0.7; }
+    .error {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: var(--danger-text);
+      padding: 12px 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+    }
+    .section-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 0.76rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+    td { padding: 14px; border-bottom: 1px solid rgba(23, 32, 51, 0.06); }
+    tr.clickable { cursor: pointer; transition: background 0.2s ease; }
+    tr.clickable:hover td { background: rgba(214, 245, 241, 0.58); }
+    tr.selected td { background: var(--accent-soft); }
+    .price { color: var(--success); font-weight: 700; }
+    .flight-card {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .flight-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .flight-price { font-size: 1.35rem; color: var(--success); font-weight: 700; }
+    .flight-meta { color: var(--muted); font-size: 0.92rem; }
+    .leg {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(23, 32, 51, 0.06);
+      font-size: 0.95rem;
+    }
+    .leg-airports { font-weight: 700; }
+    .leg-airline, .leg-time { color: var(--muted); }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    .empty { text-align: center; color: var(--muted); padding: 28px; }
+    .dest-container { display: flex; flex-direction: column; gap: 8px; }
+    .dest-chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 32px; }
+    .dest-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #134e4a 0%, #0f766e 100%);
+      color: white;
+      font-size: 0.88rem;
+    }
+    .dest-chip-remove { cursor: pointer; font-weight: 700; line-height: 1; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 720px) {
+      .container { padding-top: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .card { padding: 18px; border-radius: 20px; }
+      .flight-card-header { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="eyebrow">TypeScript Edition</div>
+      <h1>Flight Finder</h1>
+      <p>Scan a date range, compare multiple destinations, and pull the cheapest matching itineraries before drilling into the flight options for one exact day.</p>
+    </section>
+
+    <div class="card">
+      <form id="searchForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="origin">Origin</label>
+            <input type="text" id="origin" placeholder="e.g. JFK" maxlength="3" list="airports" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label for="destination">Destination(s)</label>
+            <div class="dest-container">
+              <div class="dest-chips" id="destChips"></div>
+              <input type="text" id="destination" placeholder="Loading airports..." list="airports" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fromDate">From Date</label>
+            <input type="date" id="fromDate" required>
+          </div>
+          <div class="form-group">
+            <label for="toDate">To Date</label>
+            <input type="date" id="toDate" required>
+          </div>
+          <div class="form-group">
+            <label for="seatType">Cabin Class</label>
+            <select id="seatType">
+              <option value="ECONOMY">Economy</option>
+              <option value="PREMIUM_ECONOMY">Premium Economy</option>
+              <option value="BUSINESS">Business</option>
+              <option value="FIRST">First</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tripType">Trip Type</label>
+            <select id="tripType">
+              <option value="ONE_WAY">One Way</option>
+              <option value="ROUND_TRIP">Round Trip</option>
+            </select>
+          </div>
+          <div class="form-group" id="durationGroup" style="display:none">
+            <label for="duration">Duration (nights)</label>
+            <input type="number" id="duration" min="1" max="30" value="7">
+          </div>
+          <div class="form-group">
+            <label for="adults">Adults</label>
+            <input type="number" id="adults" min="1" max="9" value="1">
+          </div>
+        </div>
+        <button type="submit" class="btn" id="searchBtn">Search Cheapest Dates</button>
+      </form>
+    </div>
+
+    <div id="errorBox" style="display:none" class="error"></div>
+
+    <div id="datesSection" style="display:none" class="card">
+      <div class="section-title" id="datesSectionTitle">Cheapest Dates</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Return Date</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="datesBody"></tbody>
+      </table>
+    </div>
+
+    <div id="flightsSection" style="display:none" class="card">
+      <div class="section-title" id="flightsSectionTitle">Flight Options</div>
+      <div id="flightsList"></div>
+    </div>
+  </div>
+
+  <datalist id="airports"></datalist>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

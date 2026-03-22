@@ -1,0 +1,30 @@
+{
+  "name": "flight-finder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Flight Finder rebuilt as a TypeScript app",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "npm run build:server && npm run build:client && npm run copy:static",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:client": "tsc -p tsconfig.client.json",
+    "copy:static": "cp public/index.html dist/public/index.html",
+    "start": "node dist/server.js"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "@nwpr/airport-codes": "^3.0.3",
+    "express": "^4.21.2",
+    "playwright-core": "^1.52.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
