@@ -59,28 +59,35 @@ def search_flights(req: FlightSearchRequest) -> list[FlightResponse]:
     output = []
     for result in results:
         if isinstance(result, tuple):
-            # Round trip - combine outbound + return
-            outbound, _ = result
-            flight = outbound
+            # Round trip - combine outbound + return legs
+            outbound, inbound = result
+            flights_to_combine = [outbound, inbound]
+            price = outbound.price
+            duration_minutes = outbound.duration + inbound.duration
+            stops = outbound.stops + inbound.stops
         else:
-            flight = result
+            flights_to_combine = [result]
+            price = result.price
+            duration_minutes = result.duration
+            stops = result.stops
 
         legs = []
-        for leg in flight.legs:
-            legs.append(FlightLegResponse(
-                airline=leg.airline.value,
-                flight_number=leg.flight_number,
-                departure_airport=leg.departure_airport.name,
-                arrival_airport=leg.arrival_airport.name,
-                departure_time=leg.departure_datetime.isoformat(),
-                arrival_time=leg.arrival_datetime.isoformat(),
-                duration_minutes=leg.duration,
-            ))
+        for flight in flights_to_combine:
+            for leg in flight.legs:
+                legs.append(FlightLegResponse(
+                    airline=leg.airline.value,
+                    flight_number=leg.flight_number,
+                    departure_airport=leg.departure_airport.name,
+                    arrival_airport=leg.arrival_airport.name,
+                    departure_time=leg.departure_datetime.isoformat(),
+                    arrival_time=leg.arrival_datetime.isoformat(),
+                    duration_minutes=leg.duration,
+                ))
 
         output.append(FlightResponse(
-            price=flight.price,
-            duration_minutes=flight.duration,
-            stops=flight.stops,
+            price=price,
+            duration_minutes=duration_minutes,
+            stops=stops,
             legs=legs,
         ))
 

@@ -14,7 +14,7 @@ def search_cheapest_dates(req: DateSearchRequest) -> list[DatePriceResponse]:
         raise ValueError(f"Invalid origin airport code: {e}")
 
     # Parse comma-separated destinations
-    destination_codes = [code.strip().upper() for code in req.destinations.split(',')]
+    destination_codes = [c for c in (code.strip().upper() for code in req.destinations.split(',')) if c]
     if not destination_codes:
         raise ValueError("At least one destination is required")
 
@@ -93,5 +93,11 @@ def search_cheapest_dates(req: DateSearchRequest) -> list[DatePriceResponse]:
                         price=dp.price,
                         destination=destination.name,
                     ))
+            else:
+                all_results.append(DatePriceResponse(
+                    date=dp.date.strftime("%Y-%m-%d"),
+                    price=dp.price,
+                    destination=destination.name,
+                ))
 
     return all_results
