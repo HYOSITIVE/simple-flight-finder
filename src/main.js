@@ -169,7 +169,7 @@ function forceTomSelectInputTheme(instance) {
 const originSelect = new TomSelect('#origin', {
   valueField: 'code',
   labelField: 'label',
-  searchField: ['code', 'name'],
+  searchField: ['code', 'name', 'city'],
   maxItems: 1,
   maxOptions: null,
   create: false,
@@ -191,7 +191,7 @@ forceTomSelectInputTheme(originSelect);
 const destinationSelect = new TomSelect('#destinations', {
   valueField: 'code',
   labelField: 'label',
-  searchField: ['code', 'name'],
+  searchField: ['code', 'name', 'city'],
   plugins: {
     remove_button: { title: 'Remove this destination' },
   },
@@ -405,6 +405,7 @@ async function loadAirports() {
     const options = airports.map((airport) => ({
       code: airport.code,
       name: airport.name,
+      city: airport.city,
       label: `${airport.code} · ${airport.name}`,
     }));
 
